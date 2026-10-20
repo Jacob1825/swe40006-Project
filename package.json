@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "SWE40006 Customer Service Ticket Portal  - Group 2",
   "main": "index.js",
-  "scripts":  {
-  "start": "node server.js",
-  "test": "jest"
-},
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Jacob1825/swe40006-Project.git"
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Jacob1825/swe40006-Project#readme",
   "dependencies": {
+    "ejs": "^7.0.2",
     "express": "^5.3.0"
   },
   "devDependencies": {
