@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Tickets</title>
+</head>
+<body>
+
+    <h1>Support Tickets</h1>
+
+    <% if (tickets.length === 0) { %>
+
+        <p>No tickets have been submitted yet.</p>
+
+    <% } else { %>
+
+        <% tickets.forEach(ticket => { %>
+
+            <hr>
+
+            <h3>Ticket #<%= ticket.id %></h3>
+
+            <p><strong>Customer:</strong> <%= ticket.customerName %></p>
+
+            <p><strong>Issue:</strong> <%= ticket.issue %></p>
+
+            <p><strong>Description:</strong> <%= ticket.description %></p>
+
+            <p><strong>Status:</strong> <%= ticket.status %></p>
+
+        <% }); %>
+
+    <% } %>
+
+    <br>
+    <a href="/tickets/new">Create Ticket</a> |
+    <a href="/">Back to Home</a>
+
+</body>
+</html>

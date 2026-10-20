@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Ticket Management</title>
+</head>
+<body>
+
+    <h1>Staff Ticket Management</h1>
+
+    <% if (tickets.length === 0) { %>
+
+        <p>No tickets available.</p>
+
+    <% } else { %>
+
+        <% tickets.forEach(ticket => { %>
+
+            <hr>
+
+            <h3>Ticket #<%= ticket.id %></h3>
+
+            <p><strong>Customer:</strong> <%= ticket.customerName %></p>
+
+            <p><strong>Issue:</strong> <%= ticket.issue %></p>
+
+            <p><strong>Status:</strong> <%= ticket.status %></p>
+
+            <form action="/staff/tickets/<%= ticket.id %>" method="POST">
+
+                <label>Change Status:</label>
+
+                <select name="status">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+
+                <button type="submit">Update</button>
+
+            </form>
+
+        <% }); %>
+
+    <% } %>
+
+    <br>
+    <a href="/">Back to Home</a>
+
+</body>
+</html>

@@ -21,11 +21,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Run unit and integration tests
         run: npm test
 
       - name: Set up Docker Buildx
