@@ -1,5 +1,6 @@
 const express = require('express');
 const { getPool, sql } = require('./db');
+const { isValidStatus } = require('./ticket-utils');
 
 const app = express();
 
@@ -75,9 +76,7 @@ app.get('/staff', async (req, res) => {
 
 app.post('/staff/tickets/:id', async (req, res) => {
     try {
-        const allowedStatuses = ['Open', 'In Progress', 'Resolved'];
-
-        if (!allowedStatuses.includes(req.body.status)) {
+        if (!isValidStatus(req.body.status)) {
             return res.status(400).send('Invalid ticket status');
         }
 
