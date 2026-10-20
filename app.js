@@ -1,4 +1,5 @@
 const express = require('express');
+const { getPool, sql } = require('./db');
 
 const app = express();
 
@@ -8,9 +9,6 @@ app.set('views', './views');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-let tickets = [];
-let nextId = 1;
-
 app.get('/', (req, res) => {
     res.render('index');
 });
@@ -19,38 +17,86 @@ app.get('/tickets/new', (req, res) => {
     res.render('new-ticket');
 });
 
-app.get('/tickets', (req, res) => {
-    res.render('tickets', { tickets });
-});
+app.get('/tickets', async (req, res) => {
+    try {
+        const pool = await getPool();
 
-app.post('/tickets', (req, res) => {
-    const newTicket = {
-        id: nextId++,
-        customerName: req.body.customerName,
-        issue: req.body.issue,
-        description: req.body.description,
-        status: 'Open'
-    };
+        const result = await pool.request().query(`
+            SELECT id, customerName, issue, description, status
+            FROM dbo.Tickets
+            ORDER BY id DESC
+        `);
 
-    tickets.push(newTicket);
-
-    res.redirect('/tickets');
-});
-
-app.get('/staff', (req, res) => {
-    res.render('staff', { tickets });
-});
-
-app.post('/staff/tickets/:id', (req, res) => {
-    const ticketId = Number(req.params.id);
-
-    const ticket = tickets.find(ticket => ticket.id === ticketId);
-
-    if (ticket) {
-        ticket.status = req.body.status;
+        res.render('tickets', { tickets: result.recordset });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Unable to load tickets');
     }
+});
 
-    res.redirect('/staff');
+app.post('/tickets', async (req, res) => {
+    try {
+        const pool = await getPool();
+
+        await pool.request()
+            .input('customerName', sql.NVarChar(100), req.body.customerName)
+            .input('issue', sql.NVarChar(200), req.body.issue)
+            .input('description', sql.NVarChar(sql.MAX), req.body.description)
+            .query(`
+                INSERT INTO dbo.Tickets
+                (customerName, issue, description, status)
+                VALUES
+                (@customerName, @issue, @description, 'Open')
+            `);
+
+        res.redirect('/tickets');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Unable to create ticket');
+    }
+});
+
+app.get('/staff', async (req, res) => {
+    try {
+        const pool = await getPool();
+
+        const result = await pool.request().query(`
+            SELECT id, customerName, issue, description, status
+            FROM dbo.Tickets
+            ORDER BY id DESC
+        `);
+
+        res.render('staff', { tickets: result.recordset });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Unable to load staff tickets');
+    }
+});
+
+app.post('/staff/tickets/:id', async (req, res) => {
+    try {
+        const allowedStatuses = ['Open', 'In Progress', 'Resolved'];
+
+        if (!allowedStatuses.includes(req.body.status)) {
+            return res.status(400).send('Invalid ticket status');
+        }
+
+        const pool = await getPool();
+
+        await pool.request()
+            .input('id', sql.Int, Number(req.params.id))
+            .input('status', sql.NVarChar(50), req.body.status)
+            .query(`
+                UPDATE dbo.Tickets
+                SET status = @status
+                WHERE id = @id
+            `);
+
+        res.redirect('/staff');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Unable to update ticket');
+    }
 });
 
 app.get('/health', (req, res) => {
