@@ -48,3 +48,11 @@ jobs:
         run: |
           docker tag ticketportal:ci acrswe40006ticketportal.azurecr.io/ticketportal:${{ github.sha }}
           docker push acrswe40006ticketportal.azurecr.io/ticketportal:${{ github.sha }}
+
+      - name: Deploy Docker image to Azure Production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: swe40006-ticketportal-prod
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
+          images: acrswe40006ticketportal.azurecr.io/ticketportal:${{ github.sha }}
